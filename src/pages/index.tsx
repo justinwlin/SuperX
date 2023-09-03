@@ -20,7 +20,7 @@ function HomepageHeader() {
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className="text--center">
-          <Link to="/guide/intro" className="button button--success button--lg">
+          <Link to="/guide/Introduction/Introductions" className="button button--success button--lg">
             Start Reading Now
           </Link>
         </div>
