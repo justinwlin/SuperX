@@ -33,7 +33,7 @@ export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`FAANG | ${siteConfig.title}`}
+      title={`Getting into FAANG - ${siteConfig.title}`}
       description="How to get into FAANG">
       <HomepageHeader />
       <main>

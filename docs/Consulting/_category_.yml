@@ -1,0 +1,6 @@
+position: 2
+label: 'Consulting'
+collapsible: false 
+link:
+  type: generated-index
+  title: Book 1:1

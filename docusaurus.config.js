@@ -83,7 +83,7 @@ const config = {
           },
           {to: '/guide/Consulting/intro', label: 'Book an Apt with Us!', position: 'left'},
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/justinwlin/SuperX',
             label: 'GitHub',
             position: 'right',
           },
