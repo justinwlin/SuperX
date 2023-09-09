@@ -81,18 +81,12 @@ const config = {
             position: 'left',
             label: 'Start Reading',
           },
-          {to: '/guide/Consulting/intro', label: 'Book an Apt with Us!', position: 'left'},
+          {to: '/guide/One-On-One/booking', label: 'Book an Apt with Us!', position: 'left'},
           {
             href: 'https://github.com/justinwlin/SuperX',
             label: 'GitHub',
             position: 'right',
           },
-          // {to: '/blog', label: 'About Us', position: 'left'},
-          // {
-          //   href: 'https://github.com/facebook/docusaurus',
-          //   label: 'GitHub',
-          //   position: 'right',
-          // },
         ],
       },
       footer: {
