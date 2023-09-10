@@ -10,10 +10,10 @@ This guide **primarily assumes** that most students are looking for internships 
 What this means is that you should count how many Septembers you have left until you graduate to categorize yourself as a new graduate or an intern. For example:
 Let's say that you started school in Sept 2021, and you will graduate around May/June of 2024.
 
-September 2021 - Freshmen internship
-September 2022 - Sophomore internship
-September 2023 - Junior Internship
-September 2024 - New Grad
+September 2021 - Freshmen internship <br/>
+September 2022 - Sophomore internship<br/>
+September 2023 - Junior Internship<br/>
+September 2024 - New Grad<br/>
 
 (And something most people don't know is that post-1 year of graduating, so September 2025 interview season, you will still count as a new grad to most companies. This is actually what I did, where when I graduated I worked full-time at Amazon, and continued to do new grad interview when I received my offers at Meta / Google.)
 
