@@ -6,5 +6,6 @@ If you're interested in scheduling a meeting with me for resume review, private 
 
 **Prefer to just DM me on Discord for a faster response!**
 
-[30 min, $45](https://zcal.co/i/WUQbQ7zf)
-[60 min, $80](https://zcal.co/i/ma8YmKxx)
+[30 min, $45](https://zcal.co/i/WUQbQ7zf) : This is for people for resume review / strategizing / interview prep / large amount of specific questions for your situation.
+
+[60 min, $80](https://zcal.co/i/ma8YmKxx) : This is for people who wants to do mocks (behavioral or technical), also strategizing and learning about their situations.
