@@ -1,6 +1,7 @@
 ---
 title: Student Timeline
 description: Timeline for students
+sidebar_position: 2
 ---
 Author: [@justinwlin](https://www.linkedin.com/in/justinlinw/)
 
@@ -14,20 +15,21 @@ September 2021 - Freshmen internship <br/>
 September 2022 - Sophomore internship<br/>
 September 2023 - Junior Internship<br/>
 September 2024 - New Grad<br/>
+September 2025 - Post New Grad (can still apply for NG roles)
 
 (And something most people don't know is that post-1 year of graduating, so September 2025 interview season, you will still count as a new grad to most companies. This is actually what I did, where when I graduated I worked full-time at Amazon, and continued to do new grad interview when I received my offers at Meta / Google.)
 
 ## Specific timeline:
 So my recommended timeline is as follows:
-September 1st to October 30th - this is the main time to apply to companies. Obviously, if you see companies that continue to post jobs after this time, feel free to keep applying. 
+**September 1st to October 30th** - this is the main time to apply to companies. Obviously, if you see companies that continue to post jobs after this time, feel free to keep applying. 
 
-October 1st to November 15th - This is primarily where people will begin to receive online assessments.
+**October 1st to November 15th** - This is primarily where people will begin to receive online assessments.
 
-October 20th through December 31st - Phone interviews / final round interviews will be given, and people will begin to receive offers around this time. 
+**October 20th through December 31st** - Phone interviews / final round interviews will be given, and people will begin to receive offers around this time. 
 
-**NOW** this is not a "hard-set" timeline and there are exceptions. For example, I know a couple of my mentees in their sophmore and junior year, the applied through September and October, but didn't hear back till January / February even though the company was interviewing other people during that time. We theorize it's because they were a sophmore, but just to be clear, it does happen that I've seen people even apply in November and December, and get interviews in February and March. 
+**NOW** this is not a "hard-set" timeline and there are exceptions. For example, I know a couple of my mentees in their sophmore and junior year, the applied through September and October, but didn't hear back till **January / February** even though the company was interviewing other people earlier in the year. We theorize it's because they were a sophmore, but just to be clear, it does happen that I've seen people even apply in **November and December**, and get interviews in **February and March.**
 
-But the reason why I try to follow the timeline I recommended is b/c the later you apply, the least headcount there might be. With these large companies, they generally do have enough headcount where it shouldn't be an issue, but it sometimes does happen that the later you apply, the more people will have applied by then, the less resource and time recruiters have to process newer candidates. This is why I personally do recommend to apply early. But again, this is not a hard-set rule. Even for myself, after I had gotten my offer from Google in December, was only then I reached out to a Meta recruiter for an interview in January. So certaintly, the timeline is flexible, but I do recommend to apply when I recommend. 
+But the reason why I try to follow the timeline I recommended is b/c the later you apply, the less headcount there might be. With these large companies, they generally do have enough headcount where it shouldn't be an issue, but it sometimes does happen that the later you apply, the more people will have applied by then, the less resource and time recruiters have to process newer candidates. This is why I personally do recommend to apply early. But again, this is not a hard-set rule. Even for myself, after I had gotten my offer from Google in December, was only then I reached out to a Meta recruiter for an interview in January. So certaintly, the timeline is flexible.
 
 ### Applying Earlier than September 1st
 Now, there are some people who "worry" - I see this every year, who apply in June, July, August. And in general, I do not recommend this. The reason why is b/c most companies are not ready to interview you. For example, Meta sometimes releases their positions in June / July. But I have talked directly to two recruiters, who told me that they wouldn't start reaching out officially till September. And I've seen some people's application even just get forgotten. Some companies like Amazon, does interview that early actually in June / July, but then my issue with this is that unless you are ready, you just sliced your time to study by a few months. 

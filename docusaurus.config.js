@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'SuperX',
-  tagline: 'The know-how to get into FAANG',
+  tagline: 'Guide to get into FAANG',
   favicon: 'img/coding.svg',
 
   // Set the production url of your site here

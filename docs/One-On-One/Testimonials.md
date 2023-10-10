@@ -6,13 +6,14 @@ Below is just some of the people we've worked with. We've also helped about half
 
 ## Tim
 
+### Offer New Grad: Google, Meta, Microsoft, Amazon
+
 [Linkedin](https://www.linkedin.com/in/tchung17/)
 
 **Status:**
 
 Was my first mentee, and is/was a health major at John Hopkins. He excelled at taking my advice and flying with it.
 
-**Offer New Grad: Google, Meta, Microsoft, Amazon**
 
 **Testimony:**
 
