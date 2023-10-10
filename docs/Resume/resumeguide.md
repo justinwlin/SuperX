@@ -99,15 +99,7 @@ Can be improved by writing (following a bit in inspiration to 22 by 2, the artic
 
 I developed a React UI dashboard that helped visualize datasets from our customers from our backend endpoints. Used modules such as D3js to manipulate graphics dynamically, and also dealt with additional challenges such as file parsing data from the client's computer to then visualize and persist in the backend database.
 
-**Here is [my own resume](https://www.notion.so/My-Resume-cec5e438d8594d4fab10f4f91da6e27a?pvs=21) - this is old.**
-
-You will notice in my own resume, I like to add an additional bullet point at the end of every experience stating:
-
 **Technology:** React, Redux, etc etc…
-
-Also my resume is for sure not the best - I did not really at the time fully deconstruct everything I did to a perfect degree, but I tried to get across back then what I did. And that is something to note though. Once your resume is good enough - there is a lower ROI. So don’t minute over every detail.
-
-I also recommend focus on WHAT YOU DID. I see often people write, “I increased our efficiency by 100x”. (Also people have no relative measure for what this means). But the problem isn’t really just knowing your impact, but how did you get there, bc companies are hiring for technical skillset. So this is why the deconstructive writing is good bc it helps you focus on WHAT you did too.
 
 ## Declining ROI (return of investment)
 
