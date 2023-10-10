@@ -14,15 +14,14 @@ Below is just some of the people we've worked with. We've also helped about half
 
 Was my first mentee, and is/was a health major at John Hopkins. He excelled at taking my advice and flying with it.
 
-
 **Testimony:**
 
 Justin totally changed how far I thought I could go in CS and cannot thank him enough :) He mentored me for several months helping me get an internship at the top tech companies when I thought it was impossible and starting from nothing as a health major my sophomore year. He taught me algorithms, full-stack web development, and perfected my interviewing skills where I then got multiple tops offers that sophomore year, with the top ones being both Amazon and now waiting on Google team matching.
 **Edit: He ended up getting Google, MFST, Meta, and Amazon Offers!~**
 
---- 
+---
 
-## Sophie 
+## Sophie
 
 ### Bloomberg / Amazon Intern / Amazon Full Time
 
@@ -38,7 +37,7 @@ With Justin’s help, I was able to get an offer as a college sophomore within 6
 
 ---
 
-## Kris 
+## Kris
 
 ### Apple Full time
 
@@ -52,7 +51,7 @@ Consulted with Kris multiple times, as she worked her way to studying and gettin
 
 Justin's willingness to help others is outstanding. He really understands the interviewing process through his own/friends experiences. Justin has crafted a template of "how to interview." I found myself reading over this guide before my interviews and slowly incorporating them into my interview style. He has a good sense of character, technical intellect and can detect where his clients are struggling the most. If you have the opportunity to connect and work w/ Justin, you will find he gets the job done and more!
 
---- 
+---
 
 ## Mathew
 

@@ -1,17 +1,19 @@
 ---
 sidebar_position: 1
 ---
+
 # Tips on Applying to Jobs!
 
 ## General Tips
 
-
 ### Use a Mailtracker Extension
-I use something like Mailpanion, which is a Chrome email extension, which allows you to add a 1x1 invisible pixel to your emails to know when someone opens your email. This is great for cold-emailing. 
+
+I use something like Mailpanion, which is a Chrome email extension, which allows you to add a 1x1 invisible pixel to your emails to know when someone opens your email. This is great for cold-emailing.
 
 Just don't go looking at your own email after you send them. I know I made that mistake, looking at the emails on my phone, and thinking, "Wow, the recruiter read the email" when it was just me. 😅
 
 ### Applying with multiple identities
+
 Companies track you (in my hypothetical guess through): address, phone number, email, name. The name can have a lot of overlap, so I think you can fake the others.
 
 1. Don't give your address if you can help it. And if you need a second address, ask a friend, ask a family member, use your parent's address, an old dorm address, etc.

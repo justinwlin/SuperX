@@ -15,13 +15,13 @@ AGAIN, IF YOU DO NOT LIKE THE COURSE YOU HAVE 30 DAYS TO RETURN IT COMPLETELY FR
 
 **Small Bonus tip:**
 
-If you have a VPN, go onto a VPN to Turkey > go incognito, make a new account, and the prices for courses will be significantly cheaper, since the turkish prices after conversion is 4.99 - 5.99 approximately in USD. 
+If you have a VPN, go onto a VPN to Turkey > go incognito, make a new account, and the prices for courses will be significantly cheaper, since the turkish prices after conversion is 4.99 - 5.99 approximately in USD.
 
 https://support.udemy.com/hc/en-us/articles/229604248-How-to-Refund-a-Course
 
 ## Grokking
 
-So there are two grokking courses! One is on [educative.io](http://educative.io) and one is on [designgurus.org](http://designgurus.org). I believe what happened is that designgurus originally sold on educative.io, but decided to move their guide off of it, and wrote an updated version to their own website. For many reasons, I think that educative.io is unethical in some of its UI design, and I like that designgurus has a life time access for 80 dollars, so I overall support it more. 
+So there are two grokking courses! One is on [educative.io](http://educative.io) and one is on [designgurus.org](http://designgurus.org). I believe what happened is that designgurus originally sold on educative.io, but decided to move their guide off of it, and wrote an updated version to their own website. For many reasons, I think that educative.io is unethical in some of its UI design, and I like that designgurus has a life time access for 80 dollars, so I overall support it more.
 
 The biggest difference however is that DesignGuru does not have an inbuilt IDE on their page, like [educative.io](http://educative.io) does. You can see this difference by checking out the free chapters on the courses.
 
@@ -33,13 +33,13 @@ For designguru there is no trick. It’s a simple 80 dollars life time access.
 
 1. MAKE SURE NOT TO CLICK THE 16.66 A MONTH. This is fake. If you click on it, it will have an asterisk, that this is based off a YEARLY payment, coming out close to 200 dollars.
 2. Instead, click the 80 dollars a year.
-    1. EDIT: This is no longer an option. They now only do a subscription model. So as I said, not an ethical business imo.
+   1. EDIT: This is no longer an option. They now only do a subscription model. So as I said, not an ethical business imo.
 
 ## Algoexpert
 
 - Algoexpert tips!
-    1. Incognito
-    2. VPN to turkey
-    3. Go to Algoexpert
-    4. Create an account / buy it
-    5. Use **clem** at checkout as a 10% more discount code.
+  1. Incognito
+  2. VPN to turkey
+  3. Go to Algoexpert
+  4. Create an account / buy it
+  5. Use **clem** at checkout as a 10% more discount code.
