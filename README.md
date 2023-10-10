@@ -1,4 +1,8 @@
-# Website
+# What is this site for
+
+This is a site for Superx.com, just my site where I moved my previous notion guide over to a proper website.
+
+# Technology Stack
 
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
