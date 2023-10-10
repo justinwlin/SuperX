@@ -8,7 +8,7 @@ sidebar_position: 2
 
 Resumes tend to be the hardest for people who are inexperienced. If your resume has two columns, graphics, pictures, lots of white spaces, not standard template, it is probably bad. If it has too much jargon, where people do not know what it means, or only impact driven with numbers without an explanation of what you did and the challenges, it isn’t good enough.
 
-The content should be 1 page, digestible, and the most important things.s
+The content should be 1 page, digestible, and the most important things.
 
 ## ATS System
 
