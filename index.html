@@ -141,8 +141,12 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    // ── DPR-aware sizing (retina renders at 2x otherwise) ──
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    // ── Mobile detection ──
+    const IS_MOBILE = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      || window.innerWidth < 768;
+
+    // ── DPR: cap at 1 on mobile, 2 on desktop ──
+    const DPR = IS_MOBILE ? 1 : Math.min(window.devicePixelRatio || 1, 2);
     let W, H; // CSS pixels
 
     function resize() {
@@ -156,13 +160,15 @@
       buildGrid();
     }
 
-    // ── Constants ──
-    const COUNT          = 60;
-    const CONNECT_DIST   = 110;
+    // ── Constants — mobile gets lighter config ──
+    const COUNT          = IS_MOBILE ? 30  : 60;
+    const CONNECT_DIST   = IS_MOBILE ? 80  : 110;
     const CD_SQ          = CONNECT_DIST * CONNECT_DIST;
-    const REPEL_SQ       = 130 * 130;
-    const ATTRACT_SQ     = 180 * 180;
-    const BURST_CAP      = 50;
+    const REPEL_SQ       = IS_MOBILE ? (90*90)  : (130*130);
+    const ATTRACT_SQ     = IS_MOBILE ? (130*130) : (180*180);
+    const BURST_CAP      = IS_MOBILE ? 25  : 50;
+    // Skip connections entirely on mobile — biggest CPU saver
+    const DRAW_CONNECTIONS = !IS_MOBILE;
     const CELL            = CONNECT_DIST; // grid cell = connection radius
     // Pre-build line alpha strings (4 bands)
     const LINE_ALPHAS    = ['rgba(232,255,0,0.03)','rgba(232,255,0,0.055)',
@@ -318,21 +324,21 @@
         if (b.life <= 0) bursts.splice(i, 1);
       }
 
-      // Rebuild connections every 2 frames
-      if (frameCount % 2 === 0) updateConnections();
-
-      // Draw connections
-      ctx.lineWidth = 0.5;
-      for (let b = 0; b < 4; b++) {
-        const pts = connLines[b];
-        if (!pts.length) continue;
-        ctx.beginPath();
-        ctx.strokeStyle = LINE_ALPHAS[b];
-        for (let k = 0; k < pts.length; k += 4) {
-          ctx.moveTo(pts[k], pts[k+1]);
-          ctx.lineTo(pts[k+2], pts[k+3]);
+      // Connections: desktop only, every 2 frames
+      if (DRAW_CONNECTIONS) {
+        if (frameCount % 2 === 0) updateConnections();
+        ctx.lineWidth = 0.5;
+        for (let b = 0; b < 4; b++) {
+          const pts = connLines[b];
+          if (!pts.length) continue;
+          ctx.beginPath();
+          ctx.strokeStyle = LINE_ALPHAS[b];
+          for (let k = 0; k < pts.length; k += 4) {
+            ctx.moveTo(pts[k], pts[k+1]);
+            ctx.lineTo(pts[k+2], pts[k+3]);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
 
       // Draw ambient dots — all same color, one path
@@ -375,7 +381,7 @@
     window.addEventListener('mouseleave', () => { MOUSE.x = -9999; MOUSE.y = -9999; });
     window.addEventListener('mousedown', e => {
       MOUSE.down = true; lastDrag = null;
-      spawnBurst(e.clientX, e.clientY, 16);
+      spawnBurst(e.clientX, e.clientY, IS_MOBILE ? 10 : 16);
       spawnRipple(e.clientX, e.clientY);
     });
     window.addEventListener('mouseup', () => { MOUSE.down = false; lastDrag = null; });
@@ -383,14 +389,14 @@
       e.preventDefault();
       const t = e.touches[0];
       MOUSE.x = t.clientX; MOUSE.y = t.clientY;
-      if (!lastDrag || (t.clientX-lastDrag.x)**2+(t.clientY-lastDrag.y)**2 > 400) {
-        spawnBurst(t.clientX, t.clientY, 4);
+      if (!lastDrag || (t.clientX-lastDrag.x)**2+(t.clientY-lastDrag.y)**2 > 900) {
+        spawnBurst(t.clientX, t.clientY, 3);
         lastDrag = { x: t.clientX, y: t.clientY };
       }
     }, { passive: false });
     window.addEventListener('touchstart', e => {
       const t = e.touches[0];
-      spawnBurst(t.clientX, t.clientY, 16);
+      spawnBurst(t.clientX, t.clientY, 10);
       spawnRipple(t.clientX, t.clientY);
     });
 
