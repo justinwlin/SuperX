@@ -141,28 +141,63 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    let W, H;
-    const COUNT = 70;          // fewer ambient particles
-    const CONNECT_DIST = 100;  // connection radius
-    const CONNECT_DIST_SQ = CONNECT_DIST * CONNECT_DIST;
-    const MOUSE_REPEL_SQ = 130 * 130;
-    const MOUSE_ATTRACT_SQ = 180 * 180;
-    const BURST_CAP = 120;     // hard cap on live burst particles
-
-    const MOUSE = { x: -9999, y: -9999, down: false };
-    let particles = [];
-    let bursts = [];
-    let ripples = [];
+    // ── DPR-aware sizing (retina renders at 2x otherwise) ──
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W, H; // CSS pixels
 
     function resize() {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width  = W * DPR;
+      canvas.height = H * DPR;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      buildGrid();
     }
 
+    // ── Constants ──
+    const COUNT          = 60;
+    const CONNECT_DIST   = 110;
+    const CD_SQ          = CONNECT_DIST * CONNECT_DIST;
+    const REPEL_SQ       = 130 * 130;
+    const ATTRACT_SQ     = 180 * 180;
+    const BURST_CAP      = 80;
+    const CELL            = CONNECT_DIST; // grid cell = connection radius
+    // Pre-build line alpha strings (4 bands)
+    const LINE_ALPHAS    = ['rgba(232,255,0,0.03)','rgba(232,255,0,0.055)',
+                            'rgba(232,255,0,0.08)','rgba(232,255,0,0.11)'];
+
+    const MOUSE = { x: -9999, y: -9999, down: false };
+    let particles = [], bursts = [], ripples = [];
+
+    // ── Spatial grid ──
+    let grid = new Map();
+    let cols, rows;
+
+    function buildGrid() {
+      cols = Math.ceil(W / CELL) + 1;
+      rows = Math.ceil(H / CELL) + 1;
+    }
+
+    function cellKey(cx, cy) { return cx * 10000 + cy; }
+
+    function populateGrid() {
+      grid.clear();
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const cx = (p.x / CELL) | 0;
+        const cy = (p.y / CELL) | 0;
+        const k = cellKey(cx, cy);
+        if (!grid.has(k)) grid.set(k, []);
+        grid.get(k).push(i);
+      }
+    }
+
+    // ── Particle factory ──
     function mkParticle() {
       return {
-        x: Math.random() * W,
-        y: Math.random() * H,
+        x: Math.random() * W, y: Math.random() * H,
         r: Math.random() * 1.2 + 0.3,
         vx: (Math.random() - 0.5) * 0.25,
         vy: (Math.random() - 0.5) * 0.25,
@@ -170,108 +205,127 @@
       };
     }
 
-    function init() {
-      particles = Array.from({ length: COUNT }, mkParticle);
-    }
+    function init() { particles = Array.from({ length: COUNT }, mkParticle); }
 
-    function spawnBurst(x, y, count = 20) {
+    function spawnBurst(x, y, n = 18) {
       const room = BURST_CAP - bursts.length;
       if (room <= 0) return;
-      count = Math.min(count, room);
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
-        const speed = Math.random() * 4.5 + 1.5;
+      n = Math.min(n, room);
+      for (let i = 0; i < n; i++) {
+        const angle = (Math.PI * 2 * i / n) + Math.random() * 0.4;
+        const speed = Math.random() * 4 + 1.5;
         bursts.push({
           x, y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          r: Math.random() * 1.8 + 0.4,
+          r: Math.random() * 1.6 + 0.4,
           life: 1.0,
-          decay: Math.random() * 0.022 + 0.016,
+          decay: Math.random() * 0.022 + 0.018,
         });
       }
     }
 
     function spawnRipple(x, y) {
-      if (ripples.length < 6) ripples.push({ x, y, radius: 0, alpha: 0.6 });
+      if (ripples.length < 5) ripples.push({ x, y, radius: 2, alpha: 0.55 });
     }
 
+    // ── Connection lines cached every other frame ──
+    let connLines = [[], [], [], []]; // 4 alpha bands
+    let connFrame = 0;
+
+    function updateConnections() {
+      connLines = [[], [], [], []];
+      populateGrid();
+      const checked = new Uint8Array(COUNT * COUNT); // dedup
+
+      for (let i = 0; i < COUNT; i++) {
+        const pi = particles[i];
+        const cx = (pi.x / CELL) | 0;
+        const cy = (pi.y / CELL) | 0;
+
+        for (let dcx = -1; dcx <= 1; dcx++) {
+          for (let dcy = -1; dcy <= 1; dcy++) {
+            const cell = grid.get(cellKey(cx + dcx, cy + dcy));
+            if (!cell) continue;
+            for (let k = 0; k < cell.length; k++) {
+              const j = cell[k];
+              if (j <= i) continue;
+              if (checked[i * COUNT + j]) continue;
+              checked[i * COUNT + j] = 1;
+              const pj = particles[j];
+              const dx = pi.x - pj.x, dy = pi.y - pj.y;
+              const dsq = dx * dx + dy * dy;
+              if (dsq < CD_SQ) {
+                const t = 1 - dsq / CD_SQ;
+                const band = Math.min(3, (t * 4) | 0);
+                connLines[band].push(pi.x, pi.y, pj.x, pj.y);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // ── Main loop ──
     let lastDrag = null;
+    let frameCount = 0;
 
     function draw() {
+      frameCount++;
       ctx.clearRect(0, 0, W, H);
 
-      // ── Ripples (cheap: just arcs) ──
+      const mx = MOUSE.x, my = MOUSE.y;
+
+      // Ripples
       for (let i = ripples.length - 1; i >= 0; i--) {
         const rp = ripples[i];
-        rp.radius += 4;
-        rp.alpha *= 0.94;
+        rp.radius += 4; rp.alpha *= 0.93;
         if (rp.alpha < 0.012) { ripples.splice(i, 1); continue; }
         ctx.beginPath();
         ctx.arc(rp.x, rp.y, rp.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(232,255,0,${rp.alpha})`;
+        ctx.strokeStyle = `rgba(232,255,0,${rp.alpha.toFixed(2)})`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
 
-      // ── Update ambient particles ──
-      const mx = MOUSE.x, my = MOUSE.y;
+      // Update ambient particles
       for (const p of particles) {
-        const mdx = p.x - mx;
-        const mdy = p.y - my;
+        const mdx = p.x - mx, mdy = p.y - my;
         const mdsq = mdx * mdx + mdy * mdy;
-
-        if (mdsq < (MOUSE.down ? MOUSE_ATTRACT_SQ : MOUSE_REPEL_SQ) && mdsq > 0.01) {
+        const limit = MOUSE.down ? ATTRACT_SQ : REPEL_SQ;
+        if (mdsq < limit && mdsq > 1) {
           const mdist = Math.sqrt(mdsq);
-          const limit = MOUSE.down ? 180 : 130;
-          const force = (limit - mdist) / limit * 0.4;
+          const lim = MOUSE.down ? 180 : 130;
+          const force = (lim - mdist) / lim * 0.4;
           const sign = MOUSE.down ? -1 : 1;
           p.vx += sign * (mdx / mdist) * force;
           p.vy += sign * (mdy / mdist) * force;
         }
-
         p.vx *= 0.98; p.vy *= 0.98;
         p.x += p.vx; p.y += p.vy;
         if (p.x < 0) p.x = W; else if (p.x > W) p.x = 0;
         if (p.y < 0) p.y = H; else if (p.y > H) p.y = 0;
       }
 
-      // ── Update burst particles ──
+      // Update bursts
       for (let i = bursts.length - 1; i >= 0; i--) {
         const b = bursts[i];
         b.vx *= 0.93; b.vy *= 0.93;
         b.x += b.vx; b.y += b.vy;
         b.life -= b.decay;
-        if (b.life <= 0) { bursts.splice(i, 1); }
+        if (b.life <= 0) bursts.splice(i, 1);
       }
 
-      // ── Connections: ambient only, batched into one path per alpha bucket ──
-      // Group lines into 4 opacity bands to minimise strokeStyle changes
-      const BANDS = 4;
-      const lines = Array.from({ length: BANDS }, () => []);
+      // Rebuild connections every 2 frames
+      if (frameCount % 2 === 0) updateConnections();
 
-      for (let i = 0; i < COUNT; i++) {
-        const pi = particles[i];
-        for (let j = i + 1; j < COUNT; j++) {
-          const pj = particles[j];
-          const dx = pi.x - pj.x;
-          const dy = pi.y - pj.y;
-          const dsq = dx * dx + dy * dy;
-          if (dsq < CONNECT_DIST_SQ) {
-            const t = 1 - dsq / CONNECT_DIST_SQ; // 0..1
-            const band = Math.min(BANDS - 1, (t * BANDS) | 0);
-            lines[band].push(pi.x, pi.y, pj.x, pj.y);
-          }
-        }
-      }
-
-      for (let b = 0; b < BANDS; b++) {
-        const pts = lines[b];
+      // Draw connections
+      ctx.lineWidth = 0.5;
+      for (let b = 0; b < 4; b++) {
+        const pts = connLines[b];
         if (!pts.length) continue;
-        const alpha = 0.03 + b * 0.025;
         ctx.beginPath();
-        ctx.strokeStyle = `rgba(232,255,0,${alpha})`;
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = LINE_ALPHAS[b];
         for (let k = 0; k < pts.length; k += 4) {
           ctx.moveTo(pts[k], pts[k+1]);
           ctx.lineTo(pts[k+2], pts[k+3]);
@@ -279,39 +333,28 @@
         ctx.stroke();
       }
 
-      // ── Draw ambient dots (one beginPath per unique alpha bucket) ──
-      // Batch by flooring alpha to 2 decimal places
-      const dotBuckets = new Map();
+      // Draw ambient dots — all same color, one path
+      ctx.fillStyle = 'rgba(232,255,0,0.35)';
+      ctx.beginPath();
       for (const p of particles) {
-        const key = (p.alpha * 50 | 0);
-        if (!dotBuckets.has(key)) dotBuckets.set(key, { alpha: p.alpha, dots: [] });
-        dotBuckets.get(key).dots.push(p.x, p.y, p.r);
+        ctx.moveTo(p.x + p.r, p.y);
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       }
-      for (const { alpha, dots } of dotBuckets.values()) {
-        ctx.fillStyle = `rgba(232,255,0,${alpha})`;
-        ctx.beginPath();
-        for (let k = 0; k < dots.length; k += 3) {
-          ctx.moveTo(dots[k] + dots[k+2], dots[k+1]);
-          ctx.arc(dots[k], dots[k+1], dots[k+2], 0, Math.PI * 2);
-        }
-        ctx.fill();
-      }
+      ctx.fill();
 
-      // ── Draw burst dots (batch into life-buckets) ──
+      // Draw burst dots — batch by life bucket (5 buckets)
       if (bursts.length) {
-        // Group by floored life value (0.0–1.0 → 10 buckets)
-        const bBuckets = new Map();
+        const bk = [[], [], [], [], []];
         for (const b of bursts) {
-          const key = (b.life * 10 | 0);
-          if (!bBuckets.has(key)) bBuckets.set(key, { life: b.life, dots: [] });
-          bBuckets.get(key).dots.push(b.x, b.y, b.r * b.life);
+          bk[Math.min(4, (b.life * 5) | 0)].push(b.x, b.y, b.r * b.life);
         }
-        for (const { life, dots } of bBuckets.values()) {
-          ctx.fillStyle = `rgba(232,255,0,${(life * 0.85).toFixed(2)})`;
+        for (let i = 0; i < 5; i++) {
+          if (!bk[i].length) continue;
+          ctx.fillStyle = `rgba(232,255,0,${((i + 1) / 5 * 0.9).toFixed(2)})`;
           ctx.beginPath();
-          for (let k = 0; k < dots.length; k += 3) {
-            ctx.moveTo(dots[k] + dots[k+2], dots[k+1]);
-            ctx.arc(dots[k], dots[k+1], dots[k+2], 0, Math.PI * 2);
+          for (let k = 0; k < bk[i].length; k += 3) {
+            ctx.moveTo(bk[i][k] + bk[i][k+2], bk[i][k+1]);
+            ctx.arc(bk[i][k], bk[i][k+1], bk[i][k+2], 0, Math.PI * 2);
           }
           ctx.fill();
         }
@@ -322,11 +365,10 @@
 
     function onMouseMove(e) {
       MOUSE.x = e.clientX; MOUSE.y = e.clientY;
-      if (MOUSE.down) {
-        if (!lastDrag || Math.hypot(e.clientX - lastDrag.x, e.clientY - lastDrag.y) > 20) {
-          spawnBurst(e.clientX, e.clientY, 4);
-          lastDrag = { x: e.clientX, y: e.clientY };
-        }
+      if (MOUSE.down && (!lastDrag ||
+          (e.clientX-lastDrag.x)**2 + (e.clientY-lastDrag.y)**2 > 400)) {
+        spawnBurst(e.clientX, e.clientY, 4);
+        lastDrag = { x: e.clientX, y: e.clientY };
       }
     }
 
@@ -335,23 +377,22 @@
     window.addEventListener('mouseleave', () => { MOUSE.x = -9999; MOUSE.y = -9999; });
     window.addEventListener('mousedown', e => {
       MOUSE.down = true; lastDrag = null;
-      spawnBurst(e.clientX, e.clientY, 22);
+      spawnBurst(e.clientX, e.clientY, 20);
       spawnRipple(e.clientX, e.clientY);
     });
     window.addEventListener('mouseup', () => { MOUSE.down = false; lastDrag = null; });
-
     window.addEventListener('touchmove', e => {
       e.preventDefault();
       const t = e.touches[0];
       MOUSE.x = t.clientX; MOUSE.y = t.clientY;
-      if (!lastDrag || Math.hypot(t.clientX - lastDrag.x, t.clientY - lastDrag.y) > 20) {
+      if (!lastDrag || (t.clientX-lastDrag.x)**2+(t.clientY-lastDrag.y)**2 > 400) {
         spawnBurst(t.clientX, t.clientY, 4);
         lastDrag = { x: t.clientX, y: t.clientY };
       }
     }, { passive: false });
     window.addEventListener('touchstart', e => {
       const t = e.touches[0];
-      spawnBurst(t.clientX, t.clientY, 22);
+      spawnBurst(t.clientX, t.clientY, 20);
       spawnRipple(t.clientX, t.clientY);
     });
 
