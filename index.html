@@ -138,74 +138,150 @@
   </div>
 
   <script>
-    // ── Particle field ──
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    let W, H, particles;
-    const COUNT = 90;
-    const MOUSE = { x: -9999, y: -9999 };
+    let W, H;
+    const COUNT = 100;
+    const MOUSE = { x: -9999, y: -9999, down: false };
+
+    // Persistent ambient particles
+    let particles = [];
+    // Burst particles (from clicks / drags)
+    let bursts = [];
+    // Ripple rings (from clicks)
+    let ripples = [];
 
     function resize() {
       W = canvas.width = window.innerWidth;
       H = canvas.height = window.innerHeight;
     }
 
-    function init() {
-      particles = Array.from({ length: COUNT }, () => ({
+    function mkParticle() {
+      return {
         x: Math.random() * W,
         y: Math.random() * H,
         r: Math.random() * 1.2 + 0.3,
         vx: (Math.random() - 0.5) * 0.25,
         vy: (Math.random() - 0.5) * 0.25,
         alpha: Math.random() * 0.4 + 0.05,
-      }));
+      };
+    }
+
+    function init() {
+      particles = Array.from({ length: COUNT }, mkParticle);
+    }
+
+    // Spawn a burst of particles from a point
+    function spawnBurst(x, y, count = 24) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+        const speed = Math.random() * 5 + 1.5;
+        bursts.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          r: Math.random() * 2 + 0.5,
+          life: 1.0,
+          decay: Math.random() * 0.02 + 0.015,
+        });
+      }
+    }
+
+    // Spawn a ripple ring
+    function spawnRipple(x, y) {
+      ripples.push({ x, y, radius: 0, maxRadius: 120, alpha: 0.6 });
+    }
+
+    // Drag trail
+    let lastDrag = null;
+    function onMouseMove(e) {
+      MOUSE.x = e.clientX;
+      MOUSE.y = e.clientY;
+      if (MOUSE.down) {
+        if (!lastDrag || Math.hypot(e.clientX - lastDrag.x, e.clientY - lastDrag.y) > 18) {
+          spawnBurst(e.clientX, e.clientY, 5);
+          lastDrag = { x: e.clientX, y: e.clientY };
+        }
+      }
     }
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
 
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
+      // ── Ripples ──
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const rp = ripples[i];
+        rp.radius += 3.5;
+        rp.alpha *= 0.95;
+        ctx.beginPath();
+        ctx.arc(rp.x, rp.y, rp.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(232,255,0,${rp.alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        if (rp.alpha < 0.01 || rp.radius > rp.maxRadius) ripples.splice(i, 1);
+      }
+
+      // ── Connections (ambient + bursts) ──
+      const all = [...particles, ...bursts];
+      for (let i = 0; i < all.length; i++) {
+        for (let j = i + 1; j < all.length; j++) {
+          const dx = all[i].x - all[j].x;
+          const dy = all[i].y - all[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < 110) {
+            const lifeA = all[i].life ?? 1;
+            const lifeB = all[j].life ?? 1;
             ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(232,255,0,${0.06 * (1 - dist / 110)})`;
+            ctx.moveTo(all[i].x, all[i].y);
+            ctx.lineTo(all[j].x, all[j].y);
+            ctx.strokeStyle = `rgba(232,255,0,${0.07 * (1 - dist / 110) * Math.min(lifeA, lifeB)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
       }
 
-      // Mouse repulsion + draw dots
+      // ── Burst particles ──
+      for (let i = bursts.length - 1; i >= 0; i--) {
+        const b = bursts[i];
+        b.vx *= 0.94;
+        b.vy *= 0.94;
+        b.x += b.vx;
+        b.y += b.vy;
+        b.life -= b.decay;
+        if (b.life <= 0) { bursts.splice(i, 1); continue; }
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r * b.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,255,0,${b.life * 0.8})`;
+        ctx.fill();
+      }
+
+      // ── Ambient particles ──
       for (const p of particles) {
-        // Mouse influence
         const mdx = p.x - MOUSE.x;
         const mdy = p.y - MOUSE.y;
         const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-        if (mdist < 120) {
-          const force = (120 - mdist) / 120 * 0.4;
+
+        if (MOUSE.down && mdist < 180) {
+          // Attract on hold
+          const force = (180 - mdist) / 180 * 0.5;
+          p.vx -= (mdx / mdist) * force;
+          p.vy -= (mdy / mdist) * force;
+        } else if (mdist < 130) {
+          // Repel on hover
+          const force = (130 - mdist) / 130 * 0.4;
           p.vx += (mdx / mdist) * force;
           p.vy += (mdy / mdist) * force;
         }
 
-        // Dampen velocity
         p.vx *= 0.98;
         p.vy *= 0.98;
-
         p.x += p.vx;
         p.y += p.vy;
 
-        // Wrap
-        if (p.x < 0) p.x = W;
-        if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H;
-        if (p.y > H) p.y = 0;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -217,8 +293,31 @@
     }
 
     window.addEventListener('resize', () => { resize(); init(); });
-    window.addEventListener('mousemove', e => { MOUSE.x = e.clientX; MOUSE.y = e.clientY; });
+    window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseleave', () => { MOUSE.x = -9999; MOUSE.y = -9999; });
+    window.addEventListener('mousedown', e => {
+      MOUSE.down = true;
+      lastDrag = null;
+      spawnBurst(e.clientX, e.clientY, 28);
+      spawnRipple(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', () => { MOUSE.down = false; lastDrag = null; });
+
+    // Touch support
+    window.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const t = e.touches[0];
+      MOUSE.x = t.clientX; MOUSE.y = t.clientY;
+      if (!lastDrag || Math.hypot(t.clientX - lastDrag.x, t.clientY - lastDrag.y) > 18) {
+        spawnBurst(t.clientX, t.clientY, 5);
+        lastDrag = { x: t.clientX, y: t.clientY };
+      }
+    }, { passive: false });
+    window.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      spawnBurst(t.clientX, t.clientY, 28);
+      spawnRipple(t.clientX, t.clientY);
+    });
 
     resize();
     init();
