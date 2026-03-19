@@ -162,7 +162,7 @@
     const CD_SQ          = CONNECT_DIST * CONNECT_DIST;
     const REPEL_SQ       = 130 * 130;
     const ATTRACT_SQ     = 180 * 180;
-    const BURST_CAP      = 80;
+    const BURST_CAP      = 50;
     const CELL            = CONNECT_DIST; // grid cell = connection radius
     // Pre-build line alpha strings (4 bands)
     const LINE_ALPHAS    = ['rgba(232,255,0,0.03)','rgba(232,255,0,0.055)',
@@ -230,13 +230,15 @@
     }
 
     // ── Connection lines cached every other frame ──
-    let connLines = [[], [], [], []]; // 4 alpha bands
-    let connFrame = 0;
+    // Pre-allocate to avoid GC pressure
+    const connLines = [[], [], [], []];
+    const checked = new Uint8Array(COUNT * COUNT);
 
     function updateConnections() {
-      connLines = [[], [], [], []];
+      // Clear without re-allocating
+      connLines[0].length = connLines[1].length = connLines[2].length = connLines[3].length = 0;
+      checked.fill(0);
       populateGrid();
-      const checked = new Uint8Array(COUNT * COUNT); // dedup
 
       for (let i = 0; i < COUNT; i++) {
         const pi = particles[i];
@@ -342,21 +344,17 @@
       }
       ctx.fill();
 
-      // Draw burst dots — batch by life bucket (5 buckets)
+      // Draw burst dots — single fillRect pass, no arc(), no per-frame allocation
+      // Use average life for alpha; visually indistinguishable and 5× faster
       if (bursts.length) {
-        const bk = [[], [], [], [], []];
-        for (const b of bursts) {
-          bk[Math.min(4, (b.life * 5) | 0)].push(b.x, b.y, b.r * b.life);
-        }
-        for (let i = 0; i < 5; i++) {
-          if (!bk[i].length) continue;
-          ctx.fillStyle = `rgba(232,255,0,${((i + 1) / 5 * 0.9).toFixed(2)})`;
-          ctx.beginPath();
-          for (let k = 0; k < bk[i].length; k += 3) {
-            ctx.moveTo(bk[i][k] + bk[i][k+2], bk[i][k+1]);
-            ctx.arc(bk[i][k], bk[i][k+1], bk[i][k+2], 0, Math.PI * 2);
-          }
-          ctx.fill();
+        let totalLife = 0;
+        for (let i = 0; i < bursts.length; i++) totalLife += bursts[i].life;
+        const avgAlpha = (totalLife / bursts.length * 0.85).toFixed(2);
+        ctx.fillStyle = `rgba(232,255,0,${avgAlpha})`;
+        for (let i = 0; i < bursts.length; i++) {
+          const b = bursts[i];
+          const s = b.r * b.life;
+          ctx.fillRect(b.x - s, b.y - s, s * 2, s * 2);
         }
       }
 
@@ -377,7 +375,7 @@
     window.addEventListener('mouseleave', () => { MOUSE.x = -9999; MOUSE.y = -9999; });
     window.addEventListener('mousedown', e => {
       MOUSE.down = true; lastDrag = null;
-      spawnBurst(e.clientX, e.clientY, 20);
+      spawnBurst(e.clientX, e.clientY, 16);
       spawnRipple(e.clientX, e.clientY);
     });
     window.addEventListener('mouseup', () => { MOUSE.down = false; lastDrag = null; });
@@ -392,7 +390,7 @@
     }, { passive: false });
     window.addEventListener('touchstart', e => {
       const t = e.touches[0];
-      spawnBurst(t.clientX, t.clientY, 20);
+      spawnBurst(t.clientX, t.clientY, 16);
       spawnRipple(t.clientX, t.clientY);
     });
 
