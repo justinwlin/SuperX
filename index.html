@@ -131,6 +131,31 @@
     .corner--tr { top: 2rem; right: 2rem; border-top: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; }
     .corner--bl { bottom: 2rem; left: 2rem; border-bottom: 1px solid #2a2a2a; border-left: 1px solid #2a2a2a; }
     .corner--br { bottom: 2rem; right: 2rem; border-bottom: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; }
+
+    /* ── X tap pulse (mobile) ── */
+    @keyframes xPulse {
+      0%   { transform: scale(1); filter: drop-shadow(0 0 40px rgba(232,255,0,0.5)) drop-shadow(0 0 80px rgba(232,255,0,0.2)); }
+      30%  { transform: scale(1.18); filter: drop-shadow(0 0 80px rgba(232,255,0,1)) drop-shadow(0 0 160px rgba(232,255,0,0.6)); }
+      60%  { transform: scale(0.95); filter: drop-shadow(0 0 50px rgba(232,255,0,0.7)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 40px rgba(232,255,0,0.5)) drop-shadow(0 0 80px rgba(232,255,0,0.2)); }
+    }
+    .logo-x.tapped {
+      animation: xPulse 0.5s cubic-bezier(0.22,1,0.36,1) forwards !important;
+    }
+
+    /* ── CSS ripple on tap ── */
+    .tap-ripple {
+      position: fixed;
+      border-radius: 50%;
+      border: 1.5px solid rgba(232,255,0,0.6);
+      pointer-events: none;
+      transform: scale(0);
+      animation: tapRipple 0.6s ease-out forwards;
+      z-index: 2;
+    }
+    @keyframes tapRipple {
+      to { transform: scale(1); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -418,6 +443,34 @@
     }
 
     resize(); init(); draw();
+
+    // ── Mobile tap interactions (CSS only, zero canvas cost) ──
+    if (IS_MOBILE) {
+      const logoX = document.querySelector('.logo-x');
+
+      // Tap anywhere → CSS ripple at finger position
+      window.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        const size = 160;
+        const el = document.createElement('div');
+        el.className = 'tap-ripple';
+        el.style.cssText = `width:${size}px;height:${size}px;left:${t.clientX - size/2}px;top:${t.clientY - size/2}px`;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }, { passive: true });
+
+      // Tap the X → scale + glow pulse
+      logoX.addEventListener('touchstart', e => {
+        e.stopPropagation(); // don't double-ripple
+        logoX.classList.remove('tapped');
+        // Force reflow so re-tapping restarts animation
+        void logoX.offsetWidth;
+        logoX.classList.add('tapped');
+        logoX.addEventListener('animationend', () => {
+          logoX.classList.remove('tapped');
+        }, { once: true });
+      }, { passive: true });
+    }
   </script>
 </body>
 </html>
