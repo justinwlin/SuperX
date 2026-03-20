@@ -311,16 +311,18 @@
 
       // Update ambient particles
       for (const p of particles) {
-        const mdx = p.x - mx, mdy = p.y - my;
-        const mdsq = mdx * mdx + mdy * mdy;
-        const limit = MOUSE.down ? ATTRACT_SQ : REPEL_SQ;
-        if (mdsq < limit && mdsq > 1) {
-          const mdist = Math.sqrt(mdsq);
-          const lim = MOUSE.down ? 180 : 130;
-          const force = (lim - mdist) / lim * 0.4;
-          const sign = MOUSE.down ? -1 : 1;
-          p.vx += sign * (mdx / mdist) * force;
-          p.vy += sign * (mdy / mdist) * force;
+        if (!IS_MOBILE) {
+          const mdx = p.x - mx, mdy = p.y - my;
+          const mdsq = mdx * mdx + mdy * mdy;
+          const limit = MOUSE.down ? ATTRACT_SQ : REPEL_SQ;
+          if (mdsq < limit && mdsq > 1) {
+            const mdist = Math.sqrt(mdsq);
+            const lim = MOUSE.down ? 180 : 130;
+            const force = (lim - mdist) / lim * 0.4;
+            const sign = MOUSE.down ? -1 : 1;
+            p.vx += sign * (mdx / mdist) * force;
+            p.vy += sign * (mdy / mdist) * force;
+          }
         }
         p.vx *= 0.98; p.vy *= 0.98;
         p.x += p.vx; p.y += p.vy;
@@ -398,20 +400,22 @@
       spawnRipple(e.clientX, e.clientY);
     });
     window.addEventListener('mouseup', () => { MOUSE.down = false; lastDrag = null; });
-    window.addEventListener('touchmove', e => {
-      e.preventDefault();
-      const t = e.touches[0];
-      MOUSE.x = t.clientX; MOUSE.y = t.clientY;
-      if (!lastDrag || (t.clientX-lastDrag.x)**2+(t.clientY-lastDrag.y)**2 > 900) {
-        spawnBurst(t.clientX, t.clientY, 3);
-        lastDrag = { x: t.clientX, y: t.clientY };
-      }
-    }, { passive: false });
-    window.addEventListener('touchstart', e => {
-      const t = e.touches[0];
-      spawnBurst(t.clientX, t.clientY, 10);
-      spawnRipple(t.clientX, t.clientY);
-    });
+    if (!IS_MOBILE) {
+      window.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        MOUSE.x = t.clientX; MOUSE.y = t.clientY;
+        if (!lastDrag || (t.clientX-lastDrag.x)**2+(t.clientY-lastDrag.y)**2 > 900) {
+          spawnBurst(t.clientX, t.clientY, 3);
+          lastDrag = { x: t.clientX, y: t.clientY };
+        }
+      }, { passive: false });
+      window.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        spawnBurst(t.clientX, t.clientY, 10);
+        spawnRipple(t.clientX, t.clientY);
+      });
+    }
 
     resize(); init(); draw();
   </script>
